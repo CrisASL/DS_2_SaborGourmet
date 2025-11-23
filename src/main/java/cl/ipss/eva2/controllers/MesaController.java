@@ -1,5 +1,9 @@
 package cl.ipss.eva2.controllers;
 
+import cl.ipss.eva2.exceptions.DuplicadoException;
+import cl.ipss.eva2.exceptions.MesaOcupadaException;
+import cl.ipss.eva2.exceptions.RecursoNoEncontradoException;
+import cl.ipss.eva2.exceptions.ValidacionException;
 import cl.ipss.eva2.models.Mesa;
 import cl.ipss.eva2.services.MesaService;
 import org.springframework.stereotype.Controller;
@@ -41,63 +45,79 @@ public class MesaController {
     // GUARDAR NUEVA MESA
     @PostMapping("/guardar")
     public String guardarMesa(@ModelAttribute Mesa mesa, Model model) {
-        // VALIDACIONES BÁSICAS
-        if (mesa.getNumero() <= 0 || mesa.getCapacidad() <= 0) {
-            model.addAttribute("error", "Número y capacidad deben ser mayores a 0");
+
+        try {
+            mesaService.create(mesa);
+            return "redirect:/mesas";
+
+        } catch (ValidacionException | DuplicadoException e) {
+            model.addAttribute("mesa", mesa);
             model.addAttribute("accion", "crear");
+            model.addAttribute("error", e.getMessage());
             return "mesas/form-mesa";
         }
-
-        mesa.setDisponible(true); // por defecto, nueva mesa disponible
-        mesaService.create(mesa);
-        return "redirect:/mesas";
     }
 
     // FORMULARIO EDITAR MESA
     @GetMapping("/editar/{id}")
     public String editarMesa(@PathVariable Long id, Model model) {
-        Mesa mesa = mesaService.getById(id);
-        if (mesa == null) {
-            return "redirect:/mesas";
+
+        try {
+            Mesa mesa = mesaService.getById(id);
+
+            model.addAttribute("mesa", mesa);
+            model.addAttribute("accion", "editar");
+            return "mesas/form-mesa";
+
+        } catch (RecursoNoEncontradoException e) {
+            model.addAttribute("error", e.getMessage());
+            return "mesas/lista-mesas";
         }
-        model.addAttribute("mesa", mesa);
-        model.addAttribute("accion", "editar");
-        return "mesas/form-mesa";
     }
 
     // ACTUALIZAR MESA
     @PostMapping("/editar/{id}")
     public String actualizarMesa(@PathVariable Long id, @ModelAttribute Mesa mesa, Model model) {
-        if (mesa.getNumero() <= 0 || mesa.getCapacidad() <= 0) {
-            model.addAttribute("error", "Número y capacidad deben ser mayores a 0");
+
+        try {
+            mesaService.update(id, mesa);
+            return "redirect:/mesas";
+
+        } catch (ValidacionException | RecursoNoEncontradoException | DuplicadoException e) {
+            model.addAttribute("mesa", mesa);
             model.addAttribute("accion", "editar");
+            model.addAttribute("error", e.getMessage());
             return "mesas/form-mesa";
         }
-
-        mesaService.update(id, mesa);
-        return "redirect:/mesas";
     }
 
     // ELIMINAR MESA
     @GetMapping("/eliminar/{id}")
-    public String eliminarMesa(@PathVariable Long id) {
+    public String eliminarMesa(@PathVariable Long id, Model model) {
+
         try {
             mesaService.delete(id);
-        } catch (RuntimeException e) {
-            // Manejar error si la mesa no existe
+            return "redirect:/mesas";
+
+        } catch (MesaOcupadaException | RecursoNoEncontradoException e) {
+            model.addAttribute("error", e.getMessage());
+            return "mesas/lista-mesas";
         }
-        return "redirect:/mesas";
     }
 
     // CAMBIAR DISPONIBILIDAD
     @GetMapping("/disponible/{id}")
-    public String cambiarDisponibilidad(@PathVariable Long id) {
+    public String cambiarDisponibilidad(@PathVariable Long id, Model model) {
+
         try {
             mesaService.cambiarDisponibilidad(id);
-        } catch (RuntimeException e) {
-            // Manejar error si la mesa no existe
+            return "redirect:/mesas";
+
+        } catch (RecursoNoEncontradoException e) {
+            model.addAttribute("error", e.getMessage());
+            return "mesas/lista-mesas";
         }
-        return "redirect:/mesas";
     }
 }
+
 

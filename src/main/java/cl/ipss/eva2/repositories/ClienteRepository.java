@@ -6,6 +6,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
-    // Aquí puedes agregar consultas personalizadas si las necesitas
-    // Ejemplo: Optional<Cliente> findByEmail(String email);
+
+    // Validar duplicados al crear
+    boolean existsByEmail(String email);
+    boolean existsByTelefono(String telefono);
+
+    // Validar duplicados al editar (excluyendo el propio id)
+    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByTelefonoAndIdNot(String telefono, Long id);
 }

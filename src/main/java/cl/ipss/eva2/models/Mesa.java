@@ -10,8 +10,8 @@ public class Mesa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int numero;
-    private int capacidad;
+    private Integer numero;
+    private Integer capacidad;
     private boolean disponible;
 
     @OneToMany(mappedBy = "mesa")
@@ -21,11 +21,11 @@ public class Mesa {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public int getNumero() { return numero; }
-    public void setNumero(int numero) { this.numero = numero; }
+    public Integer getNumero() { return numero; }
+    public void setNumero(Integer numero) { this.numero = numero; }
 
-    public int getCapacidad() { return capacidad; }
-    public void setCapacidad(int capacidad) { this.capacidad = capacidad; }
+    public Integer getCapacidad() { return capacidad; }
+    public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
 
     public boolean isDisponible() { return disponible; }
     public void setDisponible(boolean disponible) { this.disponible = disponible; }
@@ -33,4 +33,5 @@ public class Mesa {
     public List<Reserva> getReservas() { return reservas; }
     public void setReservas(List<Reserva> reservas) { this.reservas = reservas; }
 }
+
 
