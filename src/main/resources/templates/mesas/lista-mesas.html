@@ -2,30 +2,64 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Mesas</title>
+    <title>Lista de Mesas</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<h1>Lista de Mesas</h1>
-<a href="/mesas/crear">Crear Nueva Mesa</a>
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Número</th>
-        <th>Capacidad</th>
-        <th>Disponible</th>
-        <th>Acciones</th>
-    </tr>
-    <tr th:each="mesa : ${mesas}">
-        <td th:text="${mesa.id}"></td>
-        <td th:text="${mesa.numero}"></td>
-        <td th:text="${mesa.capacidad}"></td>
-        <td th:text="${mesa.disponible}"></td>
-        <td>
-            <a th:href="@{/mesas/editar/{id}(id=${mesa.id})}">Editar</a> |
-            <a th:href="@{/mesas/eliminar/{id}(id=${mesa.id})}">Eliminar</a> |
-            <a th:href="@{/mesas/disponible/{id}(id=${mesa.id})}">Cambiar Disponibilidad</a>
-        </td>
-    </tr>
-</table>
+
+<body class="bg-light">
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Lista de Mesas</h1>
+        <a href="/mesas/crear" class="btn btn-primary">+ Crear Nueva Mesa</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Número</th>
+                    <th>Capacidad</th>
+                    <th>Disponible</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="mesa : ${mesas}">
+                    <td th:text="${mesa.id}"></td>
+                    <td th:text="${mesa.numero}"></td>
+                    <td th:text="${mesa.capacidad}"></td>
+
+                    <td>
+                        <span th:text="${mesa.disponible ? 'Sí' : 'No'}"
+                              th:classappend="${mesa.disponible} ? 'text-success fw-bold' : 'text-danger fw-bold'">
+                        </span>
+                    </td>
+
+                    <td>
+                        <a th:href="@{/mesas/editar/{id}(id=${mesa.id})}" class="btn btn-sm btn-warning">Editar</a>
+                        <a th:href="@{/mesas/eliminar/{id}(id=${mesa.id})}" class="btn btn-sm btn-danger">Eliminar</a>
+                        <a th:href="@{/mesas/disponible/{id}(id=${mesa.id})}" class="btn btn-sm btn-info text-white">
+                            Cambiar Estado
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
