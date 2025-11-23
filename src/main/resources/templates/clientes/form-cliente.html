@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${accion == 'crear' ? 'Crear Cliente' : 'Editar Cliente'}"></title>
+</head>
+<body>
+
+<h1 th:text="${accion == 'crear' ? 'Crear Cliente' : 'Editar Cliente'}"></h1>
+
+<form th:action="${accion == 'crear'} ? @{/clientes/guardar} : @{/clientes/editar/{id}(id=${cliente.id})}"
+      th:object="${cliente}" method="post">
+
+    <label>Nombre:</label>
+    <input type="text" th:field="*{nombre}" required /><br/>
+
+    <label>Email:</label>
+    <input type="email" th:field="*{email}" required /><br/>
+
+    <label>Teléfono:</label>
+    <input type="text" th:field="*{telefono}" required /><br/>
+
+    <button type="submit">Guardar</button>
+</form>
+
+<a href="/clientes">Volver a lista</a>
+
+</body>
+</html>
+
