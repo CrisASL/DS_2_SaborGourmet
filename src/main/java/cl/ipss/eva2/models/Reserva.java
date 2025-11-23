@@ -14,7 +14,7 @@ public class Reserva {
     private LocalDate fecha;
     private LocalTime hora;
 
-    private String estado; // ACTIVA, CANCELADA
+    private boolean estado; // true = ACTIVA, false = CANCELADA
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
@@ -34,8 +34,8 @@ public class Reserva {
     public LocalTime getHora() { return hora; }
     public void setHora(LocalTime hora) { this.hora = hora; }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public boolean getEstado() { return estado; }
+    public void setEstado(boolean estado) { this.estado = estado; }
 
     public Cliente getCliente() { return cliente; }
     public void setCliente(Cliente cliente) { this.cliente = cliente; }
