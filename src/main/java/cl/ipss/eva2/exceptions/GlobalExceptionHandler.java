@@ -55,7 +55,9 @@ public class GlobalExceptionHandler {
         model.addAttribute("error", "Ocurrió un error inesperado: " + ex.getMessage());
         return "error/error-general";
     }
+
 }
+
 
 
 

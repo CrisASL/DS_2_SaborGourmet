@@ -5,7 +5,9 @@ import cl.ipss.eva2.exceptions.ClienteDuplicadoException;
 import cl.ipss.eva2.exceptions.ValidacionException;
 import cl.ipss.eva2.models.Cliente;
 import cl.ipss.eva2.repositories.ClienteRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,24 +20,19 @@ public class ClienteService {
         this.clienteRepository = clienteRepository;
     }
 
-    // LISTAR TODOS
     public List<Cliente> getAll() {
         return clienteRepository.findAll();
     }
 
-    // OBTENER POR ID
     public Cliente getById(Long id) {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNotFoundException("Cliente no encontrado. ID: " + id));
     }
 
-    // CREAR CLIENTE
+    @Transactional
     public Cliente create(Cliente cliente) {
-
-        // VALIDAR CAMPOS BÁSICOS
         validarCliente(cliente);
 
-        // VALIDAR DUPLICADOS (RUT, EMAIL O TELÉFONO)
         if (clienteRepository.existsByEmail(cliente.getEmail())) {
             throw new ClienteDuplicadoException("Ya existe un cliente con el email: " + cliente.getEmail());
         }
@@ -44,20 +41,18 @@ public class ClienteService {
             throw new ClienteDuplicadoException("Ya existe un cliente con el teléfono: " + cliente.getTelefono());
         }
 
-        return clienteRepository.save(cliente);
+        Cliente nuevoCliente = clienteRepository.save(cliente);
+        clienteRepository.flush(); // Forzar commit inmediato
+        return nuevoCliente;
     }
 
-    // ACTUALIZAR CLIENTE
+    @Transactional
     public Cliente update(Long id, Cliente cliente) {
-
-        // VALIDAR EXISTENCIA
         Cliente existente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNotFoundException("Cliente no encontrado. ID: " + id));
 
-        // VALIDAR CAMPOS
         validarCliente(cliente);
 
-        // VALIDAR DUPLICADOS (si es otro cliente)
         if (clienteRepository.existsByEmailAndIdNot(cliente.getEmail(), id)) {
             throw new ClienteDuplicadoException("Email ya está registrado por otro cliente.");
         }
@@ -66,25 +61,29 @@ public class ClienteService {
             throw new ClienteDuplicadoException("Teléfono ya está registrado por otro cliente.");
         }
 
-        // COPIAR CAMPOS A ACTUALIZAR
         existente.setNombre(cliente.getNombre());
         existente.setEmail(cliente.getEmail());
         existente.setTelefono(cliente.getTelefono());
 
-        return clienteRepository.save(existente);
+        Cliente updated = clienteRepository.save(existente);
+        clienteRepository.flush(); // Forzar commit inmediato
+        return updated;
     }
 
-    // ELIMINAR CLIENTE
+    @Transactional
     public void delete(Long id) {
-        if (!clienteRepository.existsById(id)) {
-            throw new ClienteNotFoundException("No se puede eliminar. Cliente no existe. ID: " + id);
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new ClienteNotFoundException("No se puede eliminar. Cliente no existe. ID: " + id));
+        try {
+            clienteRepository.delete(cliente);
+            clienteRepository.flush(); // Forzar commit y capturar errores de integridad
+        } catch (DataIntegrityViolationException e) {
+            throw new ValidacionException(
+                "No se puede eliminar este cliente porque tiene reservas o registros asociados."
+            );
         }
-        clienteRepository.deleteById(id);
     }
 
-    // ==========================
-    // VALIDACIONES BÁSICAS
-    // ==========================
     private void validarCliente(Cliente cliente) {
         if (cliente.getNombre() == null || cliente.getNombre().isBlank()) {
             throw new ValidacionException("El nombre no puede estar vacío.");

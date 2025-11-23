@@ -15,21 +15,26 @@
 <div class="container mt-5">
 
     <div class="card shadow-sm p-4">
-        <h2 class="fw-bold mb-3"
-            th:text="${accion == 'crear' ? 'Crear Mesa' : 'Editar Mesa'}">
-        </h2>
+        <h2 class="fw-bold mb-3" th:text="${accion == 'crear' ? 'Crear Mesa' : 'Editar Mesa'}"></h2>
 
-        <form th:action="${accion == 'crear'} ? @{/mesas/guardar} : @{/mesas/editar/{id}(id=${mesa.id})}"
-              th:object="${mesa}" method="post">
+        <!-- Bloque de error -->
+        <div th:if="${error}" class="alert alert-danger mb-3">
+            <p th:text="${error}"></p>
+        </div>
+
+        <!-- Formulario -->
+        <form th:object="${mesa}" 
+              th:action="@{${accion == 'crear'} ? '/mesas/guardar' : '/mesas/editar/' + ${mesa.id}}" 
+              method="post">
 
             <div class="mb-3">
                 <label class="form-label">Número</label>
-                <input type="number" th:field="*{numero}" class="form-control" required>
+                <input type="number" th:field="*{numero}" class="form-control" placeholder="Ingrese número de mesa" required>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Capacidad</label>
-                <input type="number" th:field="*{capacidad}" class="form-control" required>
+                <input type="number" th:field="*{capacidad}" class="form-control" placeholder="Ingrese capacidad" required>
             </div>
 
             <div class="form-check mb-3">
@@ -40,7 +45,6 @@
             <button type="submit" class="btn btn-success">Guardar</button>
             <a href="/mesas" class="btn btn-secondary ms-2">Cancelar</a>
         </form>
-
     </div>
 
 </div>
@@ -49,4 +53,5 @@
 
 </body>
 </html>
+
 
