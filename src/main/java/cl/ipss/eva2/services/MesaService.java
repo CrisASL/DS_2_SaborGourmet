@@ -6,19 +6,26 @@ import cl.ipss.eva2.exceptions.MesaOcupadaException;
 import cl.ipss.eva2.exceptions.ValidacionException;
 import cl.ipss.eva2.models.Mesa;
 import cl.ipss.eva2.repositories.MesaRepository;
+import cl.ipss.eva2.repositories.ReservaRepository;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MesaService {
 
     private final MesaRepository mesaRepository;
+    private final ReservaRepository reservaRepository;
 
-    public MesaService(MesaRepository mesaRepository) {
+    public MesaService(MesaRepository mesaRepository, ReservaRepository reservaRepository) {
         this.mesaRepository = mesaRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     public List<Mesa> getAll() {
@@ -111,6 +118,23 @@ public class MesaService {
 
     public List<Mesa> getDisponibles() {
         return mesaRepository.findByDisponibleTrue();
+    }
+
+    // Mesas disponibles para una fecha y hora específica
+    public List<Mesa> getDisponiblesPara(LocalDate fecha, LocalTime hora) {
+        List<Long> mesasOcupadas = reservaRepository.findByFechaAndHora(fecha, hora)
+                .stream()
+                .map(r -> r.getMesa().getId())
+                .collect(Collectors.toList());
+
+        if (mesasOcupadas.isEmpty()) {
+            return mesaRepository.findAll(); // todas disponibles
+        }
+
+        return mesaRepository.findAll()
+                .stream()
+                .filter(m -> !mesasOcupadas.contains(m.getId()))
+                .collect(Collectors.toList());
     }
 }
 

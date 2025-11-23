@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${reserva.id == null ? 'Crear Reserva' : 'Editar Reserva'}"></title>
-
-    <!-- BOOTSTRAP -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
@@ -16,12 +14,12 @@
 
 <div class="card p-4 shadow-sm">
 
-    <!-- FORM CREAR -->
-    <form th:if="${reserva.id == null}"
-          th:action="@{/reservas/guardar}"
-          th:object="${reserva}"
-          method="post">
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
+    <form th:action="${reserva.id == null} ? @{/reservas/guardar} : @{'/reservas/editar/' + ${reserva.id}}"
+          th:object="${reserva}" method="post">
+
+        <!-- CLIENTE -->
         <div class="mb-3">
             <label class="form-label">Cliente</label>
             <select class="form-select" th:field="*{cliente.id}">
@@ -29,6 +27,18 @@
             </select>
         </div>
 
+        <!-- FECHA -->
+        <div class="mb-3">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-control" th:field="*{fecha}" required>
+        </div>
+
+        <!-- HORA -->
+        <select class="form-select" th:field="*{hora}" required>
+            <option th:each="h : ${horas}" th:value="${h}" th:text="${h}"></option>
+        </select>
+
+        <!-- MESA -->
         <div class="mb-3">
             <label class="form-label">Mesa</label>
             <select class="form-select" th:field="*{mesa.id}">
@@ -36,60 +46,8 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Fecha</label>
-            <input type="date" class="form-control" th:field="*{fecha}" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Hora</label>
-            <input type="time" class="form-control" th:field="*{hora}" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Estado</label>
-            <input type="text" class="form-control" th:field="*{estado}">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Guardar</button>
-    </form>
-
-    <!-- FORM EDITAR -->
-    <form th:unless="${reserva.id == null}"
-          th:action="@{'/reservas/editar/' + ${reserva.id}}"
-          th:object="${reserva}"
-          method="post">
-
-        <div class="mb-3">
-            <label class="form-label">Cliente</label>
-            <select class="form-select" th:field="*{cliente.id}">
-                <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nombre}"></option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Mesa</label>
-            <select class="form-select" th:field="*{mesa.id}">
-                <option th:each="m : ${mesas}" th:value="${m.id}" th:text="${m.numero}"></option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Fecha</label>
-            <input type="date" class="form-control" th:field="*{fecha}" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Hora</label>
-            <input type="time" class="form-control" th:field="*{hora}" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Estado</label>
-            <input type="text" class="form-control" th:field="*{estado}">
-        </div>
-
-        <button type="submit" class="btn btn-warning">Actualizar</button>
+        <!-- BOTON -->
+        <button type="submit" class="btn btn-primary" th:text="${reserva.id == null ? 'Guardar' : 'Actualizar'}"></button>
     </form>
 
 </div>
@@ -98,6 +56,9 @@
 
 </body>
 </html>
+
+
+
 
 
 
