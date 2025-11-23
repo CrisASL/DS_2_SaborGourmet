@@ -10,6 +10,8 @@
 </head>
 <body class="container mt-4">
 
+<th:block th:replace="fragments/navbar :: navbar"></th:block>    
+
 <h1 class="mb-4" th:text="${reserva.id == null ? 'Crear Reserva' : 'Editar Reserva'}"></h1>
 
 <div class="card p-4 shadow-sm">
